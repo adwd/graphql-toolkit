@@ -1202,6 +1202,7 @@ describe('Merge TypeDefs', () => {
     });
     expect(stripWhitespaces(print(mergedTypes))).toBe(userF2Type);
   });
+
   it('excludes types', () => {
     const queryType = stripWhitespaces(/* GraphQL */`
       type Query {
@@ -1218,6 +1219,7 @@ describe('Merge TypeDefs', () => {
     });
     expect(stripWhitespaces(print(mergedTypes))).toBe(userType);
   });
+
   it('should sort fields', () => {
     const t1 = stripWhitespaces(/* GraphQL */`
       type Query {
@@ -1241,4 +1243,40 @@ describe('Merge TypeDefs', () => {
       }
     `));
   });
+
+  it('should keep indentation in comment descriptions', () => {
+    const A = /* GraphQL */`
+    type Some {
+      # comment1
+      #  - first line1
+      #  - second line1
+      field1: Int
+    }
+    `;
+
+    const B = /* GraphQL */`
+    type Some {
+      # comment2
+      #  - first line2
+      #  - second line2
+      field2: Int
+    }
+    `;
+
+    expect(mergeTypeDefs([A,B], { commentDescriptions: true })).toBe(
+/* GraphQL */`type Some {
+  
+  # comment1
+  #  - first line1
+  #  - second line1
+  field1: Int
+  
+  # comment2
+  #  - first line2
+  #  - second line2
+  field2: Int
+}
+`);
+  });
+
 });
